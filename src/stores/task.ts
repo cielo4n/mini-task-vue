@@ -14,17 +14,14 @@ export const useTaskStore = defineStore('task', {
         tasks: [] as Task[]
     }),
     actions: {
-        async login(loginId: string, password: string): Promise<void> {
+        async login(loginId: string, password: string): Promise<boolean> {
             const rst = await api.loginApi(loginId, password);
             if(rst == true) {
                 this.isLoggedIn = true;
             }
-        },
-        async logout(): Promise<void> {
-            const rst = await api.logoutApi();
-            if(rst == false){
-                this.isLoggedIn = false;
-            }
+            return new Promise((resolve, reject) => {
+                resolve(rst);
+            })
         },
         async fetchTasks(): Promise<void> {
             const rst = await api.fetchTasksApi();
@@ -32,15 +29,15 @@ export const useTaskStore = defineStore('task', {
         },
         async createTaskApi(task: Task): Promise<void> {
             await api.createTaskApi(task);
-            this.fetchTasks();
+            await this.fetchTasks();
         },
         async updateTaskApi(task: Task): Promise<void> {
             await api.updateTaskApi(task);
-            this.fetchTasks();
+            await this.fetchTasks();
         },
         async deleteTaskApi(id: number): Promise<void> {
             await api.deleteTaskApi(id);
-            this.fetchTasks();
+            await this.fetchTasks();
         }
     }
 })
