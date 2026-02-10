@@ -1,29 +1,23 @@
 import { createWebHistory , createRouter } from "vue-router";
-
-import App2 from '@/App2.vue'
 import Login from '@/pages/Login.vue'
 import Tasks from '@/pages/Tasks.vue'
 import TaskDetail from '@/pages/TaskDetail.vue'
-import { useTaskStore } from "@/stores/task";
-
-const routes = [
-    { path: '/login', component: Login },
-    { path: '/tasks', component: Tasks },
-    { path: '/tasks/:id', component: TaskDetail },
-    { path: '/', component: App2 },
-]
+import { useAuthStore } from "@/stores/auth";
 
 const router = createRouter({
     history: createWebHistory(),
-    routes,
+    routes : [
+        { path: '/login', component: Login },
+        { path: '/tasks', component: Tasks, meta: {requiresAuth: true} },
+        { path: '/tasks/:id', component: TaskDetail, meta: {requiresAuth: true} },
+    ],
 });
 
 router.beforeEach((to)=>{
-    const taskStore = useTaskStore();
-    if(to.path !== '/login' && !taskStore.isLoggedIn){
+    const authStore = useAuthStore();
+    if(to.meta.requiresAuth && !authStore.isLoggedIn){
         return '/login'
     }
 })
-
 
 export default router;

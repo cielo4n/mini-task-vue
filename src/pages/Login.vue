@@ -1,16 +1,20 @@
-<script lang="ts" setup>
-import { useTaskStore } from '@/stores/task';
-import { ref } from 'vue';
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+// UI데이터 : const input = ref('') // ref + v-model
+// DOM제어 : const inputRef = ref<HTMLInputElement | null>(null) // ref + template ref
 
 const loginId = ref();
 const password = ref();
-const router = useRouter();
 
 const handleClick = async () => {
     console.log(loginId.value, password.value);
-    const taskStore = useTaskStore();
-    const rst = await taskStore.login(loginId.value, password.value);
+    const rst = await authStore.login(loginId.value, password.value);
     if(rst == true){
         router.push('/tasks');
     }

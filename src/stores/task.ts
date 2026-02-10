@@ -10,34 +10,23 @@ export interface Task {
 
 export const useTaskStore = defineStore('task', {
     state: () => ({
-        isLoggedIn: false,
         tasks: [] as Task[]
     }),
     actions: {
-        async login(loginId: string, password: string): Promise<boolean> {
-            const rst = await api.loginApi(loginId, password);
-            if(rst == true) {
-                this.isLoggedIn = true;
-            }
-            return new Promise((resolve, reject) => {
-                resolve(rst);
-            })
-        },
         async fetchTasks(): Promise<void> {
-            const rst = await api.fetchTasksApi();
-            this.tasks = rst;
+            this.tasks = await api.fetchTasksApi();
         },
-        async createTaskApi(task: Task): Promise<void> {
+        async createTask(task: Task): Promise<void> {
             await api.createTaskApi(task);
-            await this.fetchTasks();
+            this.fetchTasks();
         },
-        async updateTaskApi(task: Task): Promise<void> {
+        async updateTask(task: Task): Promise<void> {
             await api.updateTaskApi(task);
-            await this.fetchTasks();
+            this.fetchTasks();
         },
-        async deleteTaskApi(id: number): Promise<void> {
+        async deleteTask(id: number): Promise<void> {
             await api.deleteTaskApi(id);
-            await this.fetchTasks();
+            this.fetchTasks();
         }
     }
 })

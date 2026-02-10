@@ -9,7 +9,14 @@ export const loginApi = (loginId: string, password: string) => {
     return new Promise<boolean>((resolve, reject) => {
         setTimeout(()=>{ 
             resolve(true);
-        });
+        }, 500);
+    });
+};
+export const logoutApi = () => {
+    return new Promise<boolean>((resolve, reject) => {
+        setTimeout(()=>{ 
+            resolve(true);
+        }, 500);
     });
 };
 export const fetchTasksApi = () => {
@@ -17,31 +24,31 @@ export const fetchTasksApi = () => {
     // executor : (resolve, reject) => {}
     return new Promise<Task[]>((resolve, reject) => {
         setTimeout(()=>{ 
-            resolve(tasks);
-        }, 1000)
+            resolve([...tasks]);
+        }, 500)
     });
 };
 export const createTaskApi = (task: Task)=>{
     return new Promise<void>((resolve, reject)=>{
         setTimeout(()=>{
-            tasks = [...tasks, task];
+            tasks = [...tasks, task]; // tasks.push(task) 보다 참조가 바뀌어서 선호함
             resolve(); 
-        }, 1000);
+        }, 500);
     })
 };
 export const updateTaskApi = (task: Task)=>{
     return new Promise<void>((resolve, reject) => {
         setTimeout(()=>{
-            tasks = tasks.map((item) => (task.id == item.id)? task: item );
+            tasks = tasks.map((item) => (task.id == item.id)? task : item );
             resolve();
-        }, 1000);
+        }, 500);
     })
 };
 export const deleteTaskApi = (id: number)=>{
     return new Promise<void>((resolve, reject) => {
         setTimeout(()=>{
-            tasks = tasks.filter((item)=> item.id != id);
+            tasks = tasks.filter((item)=> item.id !== id);
             resolve();
-        }, 1000);
+        }, 500);
     })
 };

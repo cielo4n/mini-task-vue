@@ -1,38 +1,36 @@
 <script lang="ts" setup>
+import { onMounted, ref } from 'vue';
 import { useTaskStore } from '@/stores/task';
 import { storeToRefs } from 'pinia';
-import { Fragment, onMounted, ref, VueElement } from 'vue';
-import { useRouter } from 'vue-router';
-import type { Task } from '@/stores/task';
+import { RouterLink } from 'vue-router';
+import TaskItem from '@/components/TaskItem.vue'
+
 
 const taskStore = useTaskStore();
-//const { tasks } = storeToRefs(taskStore);
-const router = useRouter();
+const { tasks } = storeToRefs(taskStore);
+const { fetchTasks, createTask, deleteTask } = taskStore;
+
 const inputTitle = ref();
 const selectedFilter = ref('ALL');
 
 onMounted(async()=>{
-    await taskStore.fetchTasks();
- //   tasks = taskStore.tasks;
+    await fetchTasks();
 });
 
 const handleDelete = async (id: number)=>{
     console.log("handleDelete", id)
-    await taskStore.deleteTaskApi(id);
-}
-
-const handleDetail = (id: number)=>{
-    console.log("handleDetail", id)
-    router.push(`/tasks/${id}`);
+    await deleteTask(id);
 }
 
 const handleAdd = async ()=>{
     console.log("handleAdd", inputTitle.value);
-    await taskStore.createTaskApi({
+    await createTask({
         id: Date.now(),
+        description: '',
         title: inputTitle.value,
         status: 'TODO'
-    } as Task)
+    });
+    inputTitle.value = '';
 }
 
 const handleFilter = (text: 'ALL'|'TODO'|'IN_PROGRESS'|'DONE') => {
@@ -57,15 +55,9 @@ const handleFilter = (text: 'ALL'|'TODO'|'IN_PROGRESS'|'DONE') => {
         </div>
         <div>
             <div style="text-align:left">Task List</div>
-            <template v-for="task in taskStore.tasks" v-bind:key="task.id" >
+            <template v-for="task in tasks" v-bind:key="task.id" >
                 <template v-if="selectedFilter == 'ALL' || task.status == selectedFilter">
-                    <div style="display:flex; flex-direction: column; align-items: flex-start;">                    
-                        <div><span>{{task.title}}</span> <span>({{task.status}})</span></div>
-                        <div style="display:flex; gap:5px; font-size: 0.7em; margin-left:15px;">
-                            <button v-on:click="handleDetail(task.id)">상세</button>
-                            <button v-on:click="handleDelete(task.id)">삭제</button>
-                        </div>
-                    </div>
+                    <TaskItem :task="task" @handleDelete="handleDelete"/>
                 </template>
             </template>
         </div>
