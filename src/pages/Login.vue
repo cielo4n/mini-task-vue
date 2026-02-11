@@ -36,7 +36,7 @@ const handleClick = async () => {
 </script>
 <template>
     <div>
-        Login...
+        Vue Login...
     </div>
     <div style="width: 250px; display:flex; flex-direction: column; gap:5px;">
         <div style="display:flex; justify-content: space-between;">
