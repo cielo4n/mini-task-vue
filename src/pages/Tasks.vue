@@ -82,9 +82,22 @@ const handleFilter = (text: 'ALL'|'TODO'|'IN_PROGRESS'|'DONE') => {
             <div style="text-align:left">Task List</div>
             <template v-for="task in tasks" v-bind:key="task.id" >
                 <template v-if="selectedFilter == 'ALL' || task.status == selectedFilter">
-                    <TaskItem :task="task" @handleDelete="handleDelete"/>
+                    <!--TaskItem에 슬롯 적용-->
+                    <TaskItem :task="task" @handleDelete="handleDelete">
+                        <!--<template #task-item="{task}"> #은 슬롯 문법-->
+                        <!--<template #task-item="task">는 { task: { id, title, ... } } 의미. 사용시 task.task.title 처럼 써야함-->
+                        <template v-slot:task-item-sl="{ task }">
+                            <div>
+                                <span>{{task.title}}</span> - <span>{{task.status}} </span>
+                                <span style="font-size: 0.7em">
+                                    <router-link v-bind:to="`/tasks/${task.id}`"> detail</router-link>
+                                </span>
+                            </div>
+                        </template>
+                    </TaskItem>
                 </template>
             </template>
         </div>
     </div>
 </template>
+
