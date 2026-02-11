@@ -2,12 +2,15 @@
 import { useRoute, RouterLink } from 'vue-router';
 import { useTaskStore, type Task } from '@/stores/task';
 import { onMounted, computed } from 'vue';
-
+import { useToastStore } from '@/stores/toast';
 const route = useRoute();
 const id = route.params.id;
 
 const taskStore = useTaskStore();
 const task = computed(()=>(taskStore.tasks.find(it=>(String)(it.id) == id)))
+const toastStore = useToastStore();
+const { show } = toastStore;
+
 
 onMounted(()=>{
     if(taskStore.tasks.length == 0){
@@ -18,11 +21,16 @@ onMounted(()=>{
 const handleChange = async () => {
     console.log("handleChange")
     if(!task.value) return;
-
-    await taskStore.updateTask({
-        ...task.value,
-        status: task.value.status
-    } as Task);
+    try {
+        await taskStore.updateTask({
+            ...task.value,
+            status: task.value.status
+        } as Task);
+        show('갱신성공', 'success');
+    } catch(e){
+        show('갱신실패', 'error');
+        console.log(e);
+    }
 }
 
 </script>

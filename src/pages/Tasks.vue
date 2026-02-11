@@ -2,16 +2,21 @@
 import { onMounted, ref } from 'vue';
 import { useTaskStore } from '@/stores/task';
 import { storeToRefs } from 'pinia';
-import { RouterLink } from 'vue-router';
 import TaskItem from '@/components/TaskItem.vue'
-
+import { useTaskForm } from '@/composables/useTaskForm';
+import { useToastStore } from '@/stores/toast';
 
 const taskStore = useTaskStore();
 const { tasks } = storeToRefs(taskStore);
 const { fetchTasks, createTask, deleteTask } = taskStore;
 
+const toastStore = useToastStore();
+const { show } = toastStore;
+
 const inputTitle = ref();
 const selectedFilter = ref('ALL');
+
+const { error, validate } = useTaskForm(); 
 
 onMounted(async()=>{
     await fetchTasks();
@@ -19,18 +24,35 @@ onMounted(async()=>{
 
 const handleDelete = async (id: number)=>{
     console.log("handleDelete", id)
-    await deleteTask(id);
+
+    try{
+        await deleteTask(id);
+        show('삭제성공', 'success')
+    }catch(e){
+        show('삭제실패', 'error')
+        console.log(e)
+    }
 }
 
 const handleAdd = async ()=>{
     console.log("handleAdd", inputTitle.value);
-    await createTask({
-        id: Date.now(),
-        description: '',
-        title: inputTitle.value,
-        status: 'TODO'
-    });
-    inputTitle.value = '';
+
+    if(!validate(inputTitle.value)){
+        return;
+    }
+    try{
+        await createTask({
+            id: Date.now(),
+            description: '',
+            title: inputTitle.value,
+            status: 'TODO'
+        });
+        inputTitle.value = '';
+        show('추가성공', 'success')
+    } catch(e){
+        show('추가실패', 'error')
+        console.log(e);
+    }
 }
 
 const handleFilter = (text: 'ALL'|'TODO'|'IN_PROGRESS'|'DONE') => {
@@ -40,7 +62,7 @@ const handleFilter = (text: 'ALL'|'TODO'|'IN_PROGRESS'|'DONE') => {
 
 </script>
 <template>
-    <div>Tasks...</div>
+    <div>Vue Tasks...</div>
     <div style="width: 400px; display:flex; flex-direction: column; gap:5px;">
         <div style="display:flex; justify-content: center; gap: 5px;">
             <button @click="handleFilter('ALL')">ALL</button>
@@ -52,6 +74,9 @@ const handleFilter = (text: 'ALL'|'TODO'|'IN_PROGRESS'|'DONE') => {
             <!--flex-grow:1; flex-shrink: 1; flex-basis:0%;-->
             <input  style="flex-grow:1;" type="text" v-model="inputTitle"/>
             <button style="width:60px;" v-on:click="handleAdd">추가</button>
+        </div>
+        <div style="font-size:0.7em;">
+            <span style="color:red;">{{ error ? error : '' }}</span>
         </div>
         <div>
             <div style="text-align:left">Task List</div>

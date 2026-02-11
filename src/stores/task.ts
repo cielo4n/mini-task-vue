@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import * as api from '@/api/mockApi';
 
+
 export interface Task {
     id: number;
     title: string;
@@ -17,16 +18,36 @@ export const useTaskStore = defineStore('task', {
             this.tasks = await api.fetchTasksApi();
         },
         async createTask(task: Task): Promise<void> {
-            await api.createTaskApi(task);
-            this.fetchTasks();
+            const prev = this.tasks;
+            this.tasks = [...this.tasks, task];
+
+            try {
+                await api.createTaskApi(task);
+            } catch(e) {
+                this.tasks = prev;
+                throw e;
+            }
         },
         async updateTask(task: Task): Promise<void> {
-            await api.updateTaskApi(task);
-            this.fetchTasks();
+            const prev = this.tasks;
+            this.tasks = this.tasks.map(t=> t.id === task.id ? task : t);
+
+            try {
+                await api.updateTaskApi(task);
+            } catch(e) {
+                this.tasks = prev;
+                throw e;
+            }
         },
         async deleteTask(id: number): Promise<void> {
-            await api.deleteTaskApi(id);
-            this.fetchTasks();
+            const prev = this.tasks;
+            this.tasks = this.tasks.filter(t=>t.id !== id);
+            try {
+                await api.deleteTaskApi(id);
+            } catch(e) {
+                this.tasks = prev;
+                throw e;
+            }
         }
     }
 })
